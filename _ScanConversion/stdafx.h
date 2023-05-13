@@ -7,12 +7,24 @@
 #include <vector>
 #include <iostream>
 #include <exception>
-#include <format>
 #include <sstream>
 
+#define INPUT_FORMAT char
+#define OUTPUT_FORMAT char
+
+struct ImageParam {
+	float fSamplingFreqMHz;
+	float fCenterFreqMHz;
+	float fPitchMm;
+	float fElementNum; // caution : it should be same of width size 
+	float fSpeedOfSoundMps;
+	float fAxialStepM;
+	float fLeteralStepM;
+	float fGridStepM;
+};
 
 struct dataInfo {
-	int width;
-	int heigth;
-	int unitDataSize; // short = 2, uint = 4 ..
+	int iWidth;
+	int iHeigth;
+	int iUnitDataSize; // short = 2, uint = 4 ..
 };

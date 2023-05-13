@@ -4,15 +4,29 @@
 
 
 __global__ void ScanConversionKernel(
-    const char* const input, 
-    char* const output
+    const INPUT_FORMAT* const input,
+    const dataInfo* const inputInfo,
+    OUTPUT_FORMAT* const output,
+    const dataInfo* const outputInfo,
+    const ImageParam* const param
     )
 {
-    int i = threadIdx.x;
+    const int widthIdx = threadIdx.x + blockDim.x * blockIdx.x;
+    const int heightIdx = threadIdx.y + blockDim.y * blockIdx.y;
+    // not want to use z direction
+
+    //boundary condition of data length
+    if (widthIdx < inputInfo->iWidth && heightIdx < inputInfo->iHeigth) 
+    {
+
+
+
+    }
+
 }
 
 // Helper function for using CUDA to add vectors in parallel.
-cudaError_t ScanConversion(const char* const input, dataInfo* inputInfo, char* const output, dataInfo* outputInfo)
+cudaError_t ScanConversion(const INPUT_FORMAT* const input, const dataInfo* const inputInfo, OUTPUT_FORMAT* const output, const dataInfo* const outputInfo, const ImageParam* const param)
 {
     cudaError_t cudaStatus;
 
@@ -23,8 +37,8 @@ cudaError_t ScanConversion(const char* const input, dataInfo* inputInfo, char* c
     }
 
     //define auto memory free pointer
-    std::shared_ptr<char> gInput(AllocCudaMem(inputInfo), cudaFree);
-    std::shared_ptr<char> gOutput(AllocCudaMem(outputInfo), cudaFree);
+    std::shared_ptr<INPUT_FORMAT> gInput((INPUT_FORMAT*)AllocCudaMem(inputInfo), cudaFree);
+    std::shared_ptr<OUTPUT_FORMAT> gOutput((OUTPUT_FORMAT*)AllocCudaMem(outputInfo), cudaFree);
 
     // Copy input vectors from host memory to GPU buffers.
     cudaStatus = cudaMemcpy(gInput.get(), input, GetTotalSize(inputInfo), cudaMemcpyHostToDevice);
@@ -33,10 +47,11 @@ cudaError_t ScanConversion(const char* const input, dataInfo* inputInfo, char* c
     }
 
     dim3 block(512,1,1); //thread x, y, z count
-    dim3 grid(inputInfo->width / block.x , inputInfo->heigth / block.y , 1 / block.z); // block x, y, z count
+    dim3 grid((inputInfo->iWidth - 1)/ block.x + 1 , (inputInfo->iHeigth - 1) / block.y + 1 , (1 - 1) / block.z + 1); // block x, y, z count
+    // minus 1 in molecule and plus one to optimize thread index calculation
     //function
 
-    ScanConversionKernel <<< block, grid >>> (gInput.get(), gOutput.get());
+    ScanConversionKernel <<< block, grid >>> (gInput.get(), inputInfo, gOutput.get(), outputInfo, param);
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();
@@ -64,7 +79,7 @@ cudaError_t ScanConversion(const char* const input, dataInfo* inputInfo, char* c
     return cudaStatus; // SUCCESS status return
 }
 
-char* AllocCudaMem(dataInfo* inputInfo)
+char* AllocCudaMem(const dataInfo* const inputInfo)
 {
     cudaError_t cudaStatus;
 
@@ -78,11 +93,11 @@ char* AllocCudaMem(dataInfo* inputInfo)
     return temp;
 }
 
-int GetTotalSize(dataInfo* info)
+int GetTotalSize(const dataInfo* const info)
 {
     if(info == nullptr) throw std::logic_error("info is null");
 
     //data size calculation could be exceed data format(32bit signed). need to carefully use data type which is returned
 
-    return info->heigth * info->unitDataSize * info->unitDataSize;
+    return info->iHeigth * info->iWidth * info->iUnitDataSize;
 }
