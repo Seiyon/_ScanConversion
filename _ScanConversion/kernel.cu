@@ -1,121 +1,88 @@
 ﻿
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+#include "stdafx.h"
+#include "kernel.cuh"
 
-#include <stdio.h>
 
-cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size);
-
-__global__ void addKernel(int *c, const int *a, const int *b)
+__global__ void ScanConversionKernel(
+    const char* const input, 
+    char* const output
+    )
 {
     int i = threadIdx.x;
-    c[i] = a[i] + b[i];
-}
-
-int main()
-{
-    const int arraySize = 5;
-    const int a[arraySize] = { 1, 2, 3, 4, 5 };
-    const int b[arraySize] = { 10, 20, 30, 40, 50 };
-    int c[arraySize] = { 0 };
-
-    // Add vectors in parallel.
-    cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "addWithCuda failed!");
-        return 1;
-    }
-
-    printf("{1,2,3,4,5} + {10,20,30,40,50} = {%d,%d,%d,%d,%d}\n",
-        c[0], c[1], c[2], c[3], c[4]);
-
-    // cudaDeviceReset must be called before exiting in order for profiling and
-    // tracing tools such as Nsight and Visual Profiler to show complete traces.
-    cudaStatus = cudaDeviceReset();
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaDeviceReset failed!");
-        return 1;
-    }
-
-    return 0;
 }
 
 // Helper function for using CUDA to add vectors in parallel.
-cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size)
+cudaError_t ScanConversion(const char* const input, dataInfo* inputInfo, char* const output, dataInfo* outputInfo)
 {
-    int *dev_a = 0;
-    int *dev_b = 0;
-    int *dev_c = 0;
     cudaError_t cudaStatus;
 
     // Choose which GPU to run on, change this on a multi-GPU system.
     cudaStatus = cudaSetDevice(0);
     if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
-        goto Error;
+        throw std::logic_error("cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
     }
 
-    // Allocate GPU buffers for three vectors (two input, one output)    .
-    cudaStatus = cudaMalloc((void**)&dev_c, size * sizeof(int));
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed!");
-        goto Error;
-    }
-
-    cudaStatus = cudaMalloc((void**)&dev_a, size * sizeof(int));
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed!");
-        goto Error;
-    }
-
-    cudaStatus = cudaMalloc((void**)&dev_b, size * sizeof(int));
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed!");
-        goto Error;
-    }
+    //define auto memory free pointer
+    std::shared_ptr<char> gInput(AllocCudaMem(inputInfo), cudaFree);
+    std::shared_ptr<char> gOutput(AllocCudaMem(outputInfo), cudaFree);
 
     // Copy input vectors from host memory to GPU buffers.
-    cudaStatus = cudaMemcpy(dev_a, a, size * sizeof(int), cudaMemcpyHostToDevice);
+    cudaStatus = cudaMemcpy(gInput.get(), input, GetTotalSize(inputInfo), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpy failed!");
-        goto Error;
+        throw std::logic_error("cudaMemcpy failed!");
     }
 
-    cudaStatus = cudaMemcpy(dev_b, b, size * sizeof(int), cudaMemcpyHostToDevice);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpy failed!");
-        goto Error;
-    }
+    dim3 block(512,1,1); //thread x, y, z count
+    dim3 grid(inputInfo->width / block.x , inputInfo->heigth / block.y , 1 / block.z); // block x, y, z count
+    //function
 
-    // Launch a kernel on the GPU with one thread for each element.
-    addKernel<<<1, size>>>(dev_c, dev_a, dev_b);
+    ScanConversionKernel <<< block, grid >>> (gInput.get(), gOutput.get());
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();
     if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "addKernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
-        goto Error;
+        std::stringstream stm;
+        stm << "addKernel launch failed: " << cudaGetErrorString(cudaStatus) << "\n";
+        throw std::logic_error(stm.str());
     }
-    
+
     // cudaDeviceSynchronize waits for the kernel to finish, and returns
     // any errors encountered during the launch.
     cudaStatus = cudaDeviceSynchronize();
     if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching addKernel!\n", cudaStatus);
-        goto Error;
+        std::stringstream stm;
+        stm << "cudaDeviceSynchronize returned error code " << (int)cudaStatus << " after launching addKernel!\n";
+        throw std::logic_error(stm.str());
     }
 
     // Copy output vector from GPU buffer to host memory.
-    cudaStatus = cudaMemcpy(c, dev_c, size * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaStatus = cudaMemcpy(output, gOutput.get(), GetTotalSize(outputInfo), cudaMemcpyDeviceToHost);
     if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpy failed!");
-        goto Error;
+        throw std::logic_error("cudaMemcpy failed!");
     }
 
-Error:
-    cudaFree(dev_c);
-    cudaFree(dev_a);
-    cudaFree(dev_b);
-    
-    return cudaStatus;
+    return cudaStatus; // SUCCESS status return
+}
+
+char* AllocCudaMem(dataInfo* inputInfo)
+{
+    cudaError_t cudaStatus;
+
+    char* temp;
+    cudaStatus = cudaMalloc((void**)&temp, GetTotalSize(inputInfo));
+    if (cudaStatus != cudaSuccess) {
+        cudaFree(temp);
+        throw std::logic_error("CUDA malloc error");
+    }
+
+    return temp;
+}
+
+int GetTotalSize(dataInfo* info)
+{
+    if(info == nullptr) throw std::logic_error("info is null");
+
+    //data size calculation could be exceed data format(32bit signed). need to carefully use data type which is returned
+
+    return info->heigth * info->unitDataSize * info->unitDataSize;
 }
