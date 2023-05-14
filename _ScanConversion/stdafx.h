@@ -8,15 +8,18 @@
 #include <iostream>
 #include <exception>
 #include <sstream>
+#include <chrono>
+#include <fstream>
 
-#define INPUT_FORMAT char
-#define OUTPUT_FORMAT char
+#define INPUT_FORMAT unsigned char
+#define OUTPUT_FORMAT unsigned char
+#define TIME_FORMAT double
 
 struct ImageParam {
-	float fSamplingFreqMHz;
-	float fCenterFreqMHz;
-	float fPitchMm;
-	float fElementNum; // caution : it should be same of width size 
+	float fSamplingFreqHz;
+	float fCenterFreqHz;
+	float fPitchM;
+	float fElementNum; // caution : it should be same of height size which is lateral direction 
 	float fSpeedOfSoundMps;
 	float fAxialStepM;
 	float fLeteralStepM;
@@ -26,5 +29,5 @@ struct ImageParam {
 struct dataInfo {
 	int iWidth;
 	int iHeigth;
-	int iUnitDataSize; // short = 2, uint = 4 ..
+	int iUnitDataSize; //char(byte) = 1, short = 2, float = 4, double = 8 
 };
