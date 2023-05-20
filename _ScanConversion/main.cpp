@@ -1,11 +1,12 @@
 
 #include "stdafx.h"
-#include "kernel.cuh"
+#include "interface.h"
 
-using namespace std;
+using std::string, std::vector, std::stringstream, std::ifstream, std::ofstream, std::ios;
 
-bool ReadBinFile(std::string filePath, INPUT_FORMAT** _data, int* datalen);
-bool WriteBinFile(std::string filePath, const OUTPUT_FORMAT* data, int data_len);
+string GetStringFormat(const dataInfo* const info);
+bool ReadBinFile(string filePath, INPUT_FORMAT** _data, int* datalen);
+bool WriteBinFile(string filePath, const OUTPUT_FORMAT* data, int data_len);
 
 int main()
 {
@@ -54,48 +55,28 @@ int main()
 
     // cudaDeviceReset must be called before exiting in order for profiling and
     // tracing tools such as Nsight and Visual Profiler to show complete traces.
-    cudaError_t cudaStatus = cudaDeviceReset();
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaDeviceReset failed!\n");
-        return 1;
-    }
+    checkCudaErrors(cudaDeviceReset());
 
     //write data to project folder
-    stringstream stm;
-    stm << "output_" << outputInfo.iWidth << "x" << outputInfo.iHeigth << "_imageType_" <<
-        ((outputInfo.iUnitDataSize == 1) ? "8-bit" :
-        (outputInfo.iUnitDataSize == 2) ? "16-bit_signed" :
-        (outputInfo.iUnitDataSize == 4) ? "32-bit_real" :
-        (outputInfo.iUnitDataSize == 8) ? "64-bit_real" : "unkown") << ".raw";
-
-    if (!WriteBinFile(stm.str(), &vOutput[0], GetTotalSize(&outputInfo))) {
-        printf("Write Failed!\n");
-    }
-    else {
-        printf("Write Success!\n");
-    }
-
-    stm.str("");
-    stm << "input_" << inputInfo.iWidth << "x" << inputInfo.iHeigth << "_imageType_" <<
-        ((inputInfo.iUnitDataSize == 1) ? "8-bit" :
-            (inputInfo.iUnitDataSize == 2) ? "16-bit_signed" :
-            (inputInfo.iUnitDataSize == 4) ? "32-bit_real" :
-            (inputInfo.iUnitDataSize == 8) ? "64-bit_real" : "unkown") << ".raw";
-
-    if (!WriteBinFile(stm.str(), &vInput[0], GetTotalSize(&inputInfo))) {
-        printf("Write Failed!\n");
-    }
-    else {
-        printf("Write Success!\n");
-    }
+    IF_FALSE_ERROR(WriteBinFile(GetStringFormat(&inputInfo), &vInput[0], GetTotalSize(&inputInfo)));
+    IF_FALSE_ERROR(WriteBinFile(GetStringFormat(&outputInfo), &vOutput[0], GetTotalSize(&outputInfo)));
 
     return 0;
 }
 
+string GetStringFormat(const dataInfo * const info) {
+    stringstream stm;
+    stm << "capture_" << info->iWidth << "x" << info->iHeigth << "_imageType_" <<
+        ((info->iUnitDataSize == 1) ? "8-bit" :
+            (info->iUnitDataSize == 2) ? "16-bit_signed" :
+            (info->iUnitDataSize == 4) ? "32-bit_real" :
+            (info->iUnitDataSize == 8) ? "64-bit_real" : "unkown") << ".raw";
+    return stm.str();
+}
 
-bool ReadBinFile(std::string filePath, INPUT_FORMAT** _data, int* datalen)
+bool ReadBinFile(string filePath, INPUT_FORMAT** _data, int* datalen)
 {
-    std::ifstream is(filePath, std::ifstream::binary);
+    ifstream is(filePath, ifstream::binary);
     if (is) {
         // seekg를 이용한 파일 크기 추출
         is.seekg(0, is.end);
@@ -115,10 +96,10 @@ bool ReadBinFile(std::string filePath, INPUT_FORMAT** _data, int* datalen)
     return true;
 }
 
-bool WriteBinFile(std::string filePath, const OUTPUT_FORMAT* const data, int data_len)
+bool WriteBinFile(string filePath, const OUTPUT_FORMAT* const data, int data_len)
 {
-    std::ofstream fout;
-    fout.open(filePath, std::ios::out | std::ios::binary);
+    ofstream fout;
+    fout.open(filePath, ios::out | ios::binary);
 
     if (fout.is_open()) {
         fout.write((char*)data, data_len);

@@ -13,24 +13,25 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6FF70556-8687-49A1-B847-FBEBC7306AF9}</ProjectGuid>
     <RootNamespace>_ScanConversion</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.7.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.1.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -41,12 +42,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>Common\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>Common\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -64,6 +72,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;WIN64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -77,17 +88,56 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="function.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Common\helper_multiprocess.cpp" />
+    <ClCompile Include="Common\multithreading.cpp" />
+    <ClCompile Include="Common\rendercheck_d3d10.cpp" />
+    <ClCompile Include="Common\rendercheck_d3d11.cpp" />
+    <ClCompile Include="Common\rendercheck_d3d9.cpp" />
+    <ClCompile Include="Interface.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="kernel.cuh" />
+    <ClInclude Include="Common\drvapi_error_string.h" />
+    <ClInclude Include="Common\dynlink_d3d10.h" />
+    <ClInclude Include="Common\dynlink_d3d11.h" />
+    <ClInclude Include="Common\exception.h" />
+    <ClInclude Include="Common\helper_cuda.h" />
+    <ClInclude Include="Common\helper_cuda_drvapi.h" />
+    <ClInclude Include="Common\helper_cusolver.h" />
+    <ClInclude Include="Common\helper_functions.h" />
+    <ClInclude Include="Common\helper_gl.h" />
+    <ClInclude Include="Common\helper_image.h" />
+    <ClInclude Include="Common\helper_math.h" />
+    <ClInclude Include="Common\helper_multiprocess.h" />
+    <ClInclude Include="Common\helper_nvJPEG.hxx" />
+    <ClInclude Include="Common\helper_string.h" />
+    <ClInclude Include="Common\helper_timer.h" />
+    <ClInclude Include="Common\multithreading.h" />
+    <ClInclude Include="Common\nvMath.h" />
+    <ClInclude Include="Common\nvMatrix.h" />
+    <ClInclude Include="Common\nvQuaternion.h" />
+    <ClInclude Include="Common\nvrtc_helper.h" />
+    <ClInclude Include="Common\nvShaderUtils.h" />
+    <ClInclude Include="Common\nvVector.h" />
+    <ClInclude Include="Common\param.h" />
+    <ClInclude Include="Common\paramgl.h" />
+    <ClInclude Include="Common\rendercheck_d3d10.h" />
+    <ClInclude Include="Common\rendercheck_d3d11.h" />
+    <ClInclude Include="Common\rendercheck_d3d9.h" />
+    <ClInclude Include="Common\rendercheck_gl.h" />
+    <ClInclude Include="Common\rendercheck_gles.h" />
+    <ClInclude Include="interface.h" />
+    <ClInclude Include="function.cuh" />
     <ClInclude Include="stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Common\LICENSE" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.7.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.1.targets" />
   </ImportGroup>
 </Project>
