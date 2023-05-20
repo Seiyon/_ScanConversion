@@ -93,44 +93,17 @@
     <CudaCompile Include="function.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Common\helper_multiprocess.cpp" />
-    <ClCompile Include="Common\multithreading.cpp" />
-    <ClCompile Include="Common\rendercheck_d3d10.cpp" />
-    <ClCompile Include="Common\rendercheck_d3d11.cpp" />
-    <ClCompile Include="Common\rendercheck_d3d9.cpp" />
     <ClCompile Include="Interface.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\drvapi_error_string.h" />
-    <ClInclude Include="Common\dynlink_d3d10.h" />
-    <ClInclude Include="Common\dynlink_d3d11.h" />
     <ClInclude Include="Common\exception.h" />
     <ClInclude Include="Common\helper_cuda.h" />
     <ClInclude Include="Common\helper_cuda_drvapi.h" />
-    <ClInclude Include="Common\helper_cusolver.h" />
     <ClInclude Include="Common\helper_functions.h" />
-    <ClInclude Include="Common\helper_gl.h" />
     <ClInclude Include="Common\helper_image.h" />
-    <ClInclude Include="Common\helper_math.h" />
-    <ClInclude Include="Common\helper_multiprocess.h" />
-    <ClInclude Include="Common\helper_nvJPEG.hxx" />
     <ClInclude Include="Common\helper_string.h" />
     <ClInclude Include="Common\helper_timer.h" />
-    <ClInclude Include="Common\multithreading.h" />
-    <ClInclude Include="Common\nvMath.h" />
-    <ClInclude Include="Common\nvMatrix.h" />
-    <ClInclude Include="Common\nvQuaternion.h" />
-    <ClInclude Include="Common\nvrtc_helper.h" />
-    <ClInclude Include="Common\nvShaderUtils.h" />
-    <ClInclude Include="Common\nvVector.h" />
-    <ClInclude Include="Common\param.h" />
-    <ClInclude Include="Common\paramgl.h" />
-    <ClInclude Include="Common\rendercheck_d3d10.h" />
-    <ClInclude Include="Common\rendercheck_d3d11.h" />
-    <ClInclude Include="Common\rendercheck_d3d9.h" />
-    <ClInclude Include="Common\rendercheck_gl.h" />
-    <ClInclude Include="Common\rendercheck_gles.h" />
     <ClInclude Include="interface.h" />
     <ClInclude Include="function.cuh" />
     <ClInclude Include="stdafx.h" />

@@ -19,8 +19,8 @@ void TestPerformanceFunction(
 
 int main()
 {
-    int width = 2000; // the number of decimated sample (2000 / 4)
-    int height = 2000; // the number of element
+    int width = 500; // the number of decimated sample (2000 / 4)
+    int height = 128; // the number of element
     dataInfo inputInfo = { width, height, sizeof(INPUT_FORMAT)};
     vector<INPUT_FORMAT> vInput((size_t)width * height, 0);
 
@@ -62,6 +62,8 @@ int main()
     CALLBACK_TYPE scanConvTextFunc = ScanConversionTexture;
 
     int testCount = 100;
+    //ScanConversion(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param);
+    //ScanConversionTexture(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param);
 
     //double ProcessTimeMicroSecond = ScanConversionTexture(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param);
     TestPerformanceFunction(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param, testCount, ScanConversion,

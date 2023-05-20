@@ -1,28 +1,53 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="CUDA_file">
-      <UniqueIdentifier>{d6e7191a-7fb3-4828-b7d8-c5c0cad15485}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="CUDA_file\source">
-      <UniqueIdentifier>{bfa15df9-6980-4fc5-8f30-a97d99e86b6c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="CUDA_file\header">
-      <UniqueIdentifier>{19defff7-5968-40df-aad5-1111e89f9a04}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="kernel.cu">
-      <Filter>CUDA_file\source</Filter>
-    </CudaCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Interface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="kernel.cuh">
-      <Filter>CUDA_file\header</Filter>
+    <ClInclude Include="interface.h" />
+    <ClInclude Include="function.cuh">
+      <Filter>CudaFile</Filter>
     </ClInclude>
+    <ClInclude Include="Common\helper_timer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\helper_string.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\helper_image.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\helper_functions.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\helper_cuda_drvapi.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\helper_cuda.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\exception.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CudaFile">
+      <UniqueIdentifier>{2b9130fd-d3b0-4c76-8f0d-2e2cb166ad97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{2fdb326c-2bdf-488e-a1dc-aae8fc77268c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="function.cu">
+      <Filter>CudaFile</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Common\LICENSE">
+      <Filter>Common</Filter>
+    </None>
   </ItemGroup>
 </Project>
