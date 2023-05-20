@@ -1,9 +1,9 @@
-# _ScanConversion
+# _ScanConversion   
 
-2023.05.12 update
-texture memory 를 사용한 scan conversion을 추가했습니다.
-특징은 일반적으로  global memory보다 빠르지만, read only이고, 그래픽 카드에 따라 compute capability가 달라 사용가능한 메모리도 다른 것으로 알고있습니다.
-그래서 사용가능한 메모리를 cuda smples에 있는 deviceQuery 솔루션으로 확인해 보는게 좋습니다.
+2023.05.12 update   
+texture memory 를 사용한 scan conversion을 추가했습니다.   
+특징은 일반적으로  global memory보다 빠르지만, read only이고, 그래픽 카드에 따라 compute capability가 달라 사용가능한 메모리도 다른 것으로 알고있습니다.   
+그래서 사용가능한 메모리를 cuda smples에 있는 deviceQuery 솔루션으로 확인해 보는게 좋습니다.   
 
 예시,   
 Device 0: "NVIDIA GeForce RTX 4090"   
@@ -47,11 +47,11 @@ Device 0: "NVIDIA GeForce RTX 4090"
 Result = PASS   
    
    
-현재 구현된 코드로는 각 input의 width와 height의 크기를 몇 천 단위로 늘리게 되면 오히려 global memory로 구현한게 몇 배 빨라집니다.
-디버깅을 해보았으나, 제가 파악하기론 texture memory buffer 크기가 커지면 불리해지는 점이 있다고밖엔 생각을 못하고 있습니다.
-혹시 의견이 있으시다면 제게 알려주세요.
+현재 구현된 코드로는 각 input의 width와 height의 크기를 몇 천 단위로 늘리게 되면 오히려 global memory로 구현한게 몇 배 빨라집니다.   
+디버깅을 해보았으나, 제가 파악하기론 texture memory buffer 크기가 커지면 불리해지는 점이 있다고밖엔 생각을 못하고 있습니다.   
+혹시 의견이 있으시다면 제게 알려주세요.   
 
-seiyun Lee
+seiyun Lee   
 
 
 
