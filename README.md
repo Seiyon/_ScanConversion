@@ -1,6 +1,6 @@
 # _ScanConversion   
 
-2023.05.12 update   
+2023.05.21 update   
 texture memory 를 사용한 scan conversion을 추가했습니다.   
 특징은 일반적으로  global memory보다 빠르지만, read only이고, 그래픽 카드에 따라 compute capability가 달라 사용가능한 메모리도 다른 것으로 알고있습니다.   
 그래서 사용가능한 메모리를 cuda smples에 있는 deviceQuery 솔루션으로 확인해 보는게 좋습니다.   
