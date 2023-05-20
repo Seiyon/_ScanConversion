@@ -34,12 +34,12 @@ TIME_FORMAT ScanConversion(const INPUT_FORMAT* const input, const dataInfo* cons
     ExcuteScanConversionKernel(&grid, &block, gInput.get(), *inputInfo, gOutput.get(), *outputInfo, *param);
 
     // Check for any errors launching the kernel
-    cudaStatus = cudaGetLastError();
+    /*cudaStatus = cudaGetLastError();
     if (cudaStatus != cudaSuccess) {
         std::stringstream stm;
         stm << "ScanConversionKernel launch failed: " << cudaGetErrorString(cudaStatus) << "\n";
         throw std::exception(stm.str().c_str());
-    }
+    }*/
 
     // cudaDeviceSynchronize waits for the kernel to finish, and returns
     // any errors encountered during the launch.
@@ -100,7 +100,7 @@ TIME_FORMAT ScanConversionTexture(const INPUT_FORMAT* const input, const dataInf
     ExcuteScanConversionKernelTexture(&grid, &block, *gInput.get(), *inputInfo, gOutput.get(), *outputInfo, *param);
     
 
-    checkCudaErrors(cudaGetLastError());
+    //checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
     sdkStopTimer(&timer);
 

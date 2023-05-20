@@ -14,8 +14,6 @@ __global__ void ScanConversionKernel(
     const int widthIdx = threadIdx.x + blockDim.x * blockIdx.x;
     const int heightIdx = threadIdx.y + blockDim.y * blockIdx.y;
 
-    if (param.fGridStepM < 0) return; // for miss calcaculation
-
     //boundary condition of data length
     if (widthIdx < outputInfo.iWidth && heightIdx < outputInfo.iHeigth)
     {
@@ -78,8 +76,6 @@ __global__ void ScanConversionKernelTexture(
 {
     const int widthIdx = threadIdx.x + blockDim.x * blockIdx.x;
     const int heightIdx = threadIdx.y + blockDim.y * blockIdx.y;
-
-    if (param.fGridStepM < 0) return; // for miss calcaculation
 
     //boundary condition of data length
     if (widthIdx < outputInfo.iWidth && heightIdx < outputInfo.iHeigth)

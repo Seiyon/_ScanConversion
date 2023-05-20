@@ -61,7 +61,7 @@ int main()
     CALLBACK_TYPE scanConvFunc = ScanConversion;
     CALLBACK_TYPE scanConvTextFunc = ScanConversionTexture;
 
-    int testCount = 100;
+    int testCount = 1000;
     //ScanConversion(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param);
     //ScanConversionTexture(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param);
 
