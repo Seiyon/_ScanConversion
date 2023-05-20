@@ -23,9 +23,8 @@ TIME_FORMAT ScanConversion(const INPUT_FORMAT* const input, const dataInfo* cons
         throw std::exception("cudaMemcpy failed!");
     }
 
-    dim3 block(512, 1); //thread x, y count
-    dim3 grid((outputInfo->iWidth - 1) / block.x + 1, (outputInfo->iHeigth - 1) / block.y + 1); // block x, y count
-    // minus 1 in molecule and plus one to optimize thread index calculation
+    dim3 block(512, 1);
+    dim3 grid((outputInfo->iWidth + block.x - 1) / block.x, (outputInfo->iHeigth + block.y - 1) / block.y);
     //function
 
     StopWatchInterface* timer = NULL;
@@ -92,7 +91,7 @@ TIME_FORMAT ScanConversionTexture(const INPUT_FORMAT* const input, const dataInf
     std::shared_ptr<OUTPUT_FORMAT> gOutput((OUTPUT_FORMAT*)AllocCudaMem(outputInfo), cudaFree);
 
     dim3 block(512, 1);
-    dim3 grid((outputInfo->iWidth - 1) / block.x + 1, (outputInfo->iHeigth - 1) / block.y + 1);
+    dim3 grid((outputInfo->iWidth + block.x - 1) / block.x, (outputInfo->iHeigth + block.y - 1) / block.y);
 
     StopWatchInterface* timer = NULL;
     sdkCreateTimer(&timer);
