@@ -32,8 +32,8 @@ int main()
         }
     }
 
-    int outWidth = 892;
-    int outHeight = 768;
+    int outWidth = 1000;
+    int outHeight = 200;
     dataInfo outputInfo = {outWidth, outHeight, sizeof(OUTPUT_FORMAT)};
     vector<OUTPUT_FORMAT> vOutput((size_t)outWidth * outHeight, 0);
     
@@ -66,10 +66,11 @@ int main()
     //ScanConversionTexture(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param);
 
     //double ProcessTimeMicroSecond = ScanConversionTexture(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param);
-    TestPerformanceFunction(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param, testCount, ScanConversion,
-        "ScanConversion");
+    
     TestPerformanceFunction(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param, testCount, ScanConversionTexture,
         "ScanConvertionTexture");
+    TestPerformanceFunction(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param, testCount, ScanConversion,
+        "ScanConversion");
 
     // cudaDeviceReset must be called before exiting in order for profiling and
     // tracing tools such as Nsight and Visual Profiler to show complete traces.
