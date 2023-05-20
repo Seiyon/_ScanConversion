@@ -14,9 +14,7 @@ TIME_FORMAT ScanConversion(const INPUT_FORMAT* const input, const dataInfo* cons
     }
 
     //define auto memory free pointer
-    printf("input");
     std::shared_ptr<INPUT_FORMAT> gInput((INPUT_FORMAT*)AllocCudaMem(inputInfo), cudaFree);
-    printf("output");
     std::shared_ptr<OUTPUT_FORMAT> gOutput((OUTPUT_FORMAT*)AllocCudaMem(outputInfo), cudaFree);
 
     // Copy input vectors from host memory to GPU buffers.

@@ -61,7 +61,7 @@ int main()
     CALLBACK_TYPE scanConvFunc = ScanConversion;
     CALLBACK_TYPE scanConvTextFunc = ScanConversionTexture;
 
-    int testCount = 1000;
+    int testCount = 100;
 
     //double ProcessTimeMicroSecond = ScanConversionTexture(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param);
     TestPerformanceFunction(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param, testCount, ScanConversion,
@@ -126,7 +126,7 @@ void TestPerformanceFunction(
     TIME_FORMAT sum = 0;
     for (size_t i = 0; i < count; i++)
     {
-        sum += ScanConversionTexture(input, inputInfo, output, outputInfo, param);
+        sum += callback(input, inputInfo, output, outputInfo, param);
     }
     TIME_FORMAT aveSum = sum / (TIME_FORMAT)count;
 
