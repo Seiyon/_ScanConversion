@@ -67,8 +67,9 @@ TIME_FORMAT ScanConversionTexture(const INPUT_FORMAT* const input, const dataInf
     checkCudaErrors(cudaSetDevice(0));
 
     cudaChannelFormatDesc channelDesc = 
-        cudaCreateChannelDesc(8 * sizeof(INPUT_FORMAT), 0, 0, 0, cudaChannelFormatKindFloat);
+        cudaCreateChannelDesc(8 * sizeof(INPUT_FORMAT), 8 * sizeof(INPUT_FORMAT), 0, 0, cudaChannelFormatKindFloat);
     std::shared_ptr<cudaArray> gCuArray(AllocCudaArray(inputInfo, &channelDesc), cudaFreeArray);
+
     checkCudaErrors(cudaMemcpyToArray(gCuArray.get(), 0, 0, input, GetTotalSize(inputInfo), cudaMemcpyHostToDevice));
     cudaResourceDesc textRes;
     memset(&textRes, 0, sizeof(cudaResourceDesc));

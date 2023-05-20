@@ -1,7 +1,7 @@
 
 
 
-__global__ void ScanConversionKernel(
+extern "C" __global__ void ScanConversionKernel(
     const INPUT_FORMAT* const input,
     const dataInfo inputInfo,
     OUTPUT_FORMAT* const output,
@@ -9,7 +9,7 @@ __global__ void ScanConversionKernel(
     const ImageParam param
 );
 
-__global__ void ScanConversionKernelTexture(
+extern "C" __global__ void ScanConversionKernelTexture(
     const cudaTextureObject_t const input,
     const dataInfo inputInfo,
     OUTPUT_FORMAT* const output,
