@@ -3,18 +3,6 @@
 #include "function.cuh"
 
 
-void ExcuteScanConversionKernel(
-    const dim3* grid,
-    const dim3* block, 
-    const INPUT_FORMAT* const input, 
-    const dataInfo inputInfo, 
-    OUTPUT_FORMAT* const output, 
-    const dataInfo outputInfo, 
-    const ImageParam param)
-{
-    ScanConversionKernel << < *grid, *block >> > (input, inputInfo, output, outputInfo, param);
-}
-
 __global__ void ScanConversionKernel(
     const INPUT_FORMAT* const input,
     const dataInfo inputInfo,
@@ -79,4 +67,63 @@ __global__ void ScanConversionKernel(
 
     }
 
+}
+
+__global__ void ScanConversionKernelTexture(
+    const cudaTextureObject_t const input, 
+    const dataInfo inputInfo, 
+    OUTPUT_FORMAT* const output, 
+    const dataInfo outputInfo, 
+    const ImageParam param)
+{
+    const int widthIdx = threadIdx.x + blockDim.x * blockIdx.x;
+    const int heightIdx = threadIdx.y + blockDim.y * blockIdx.y;
+
+    if (param.fGridStepM < 0) return; // for miss calcaculation
+
+    //boundary condition of data length
+    if (widthIdx < outputInfo.iWidth && heightIdx < outputInfo.iHeigth)
+    {
+        //xIdx for leteral directrion, base location is center of the element
+        const float xLength = heightIdx * param.fGridStepM;
+        //zIdx for axial index. match to width index
+        const float zLength = widthIdx * param.fGridStepM;
+
+        const float xIdx = xLength / param.fLeteralStepM;
+        const float zIdx = zLength / param.fAxialStepM;
+        const int xIdxFloor = (int)xIdx;
+        const int zIdxFloor = (int)zIdx;
+
+        //const int offset_index_plot_center = (outputInfo.iHeigth - inputInfo.iHeigth) / 2;
+        // read from texture and write to global memory
+        if (zIdxFloor < inputInfo.iWidth - 1 && xIdxFloor < inputInfo.iHeigth - 1) {
+            output[heightIdx * outputInfo.iWidth + widthIdx] = tex2D<INPUT_FORMAT>(input, zIdx, xIdx);
+        }
+    }
+}
+
+
+void ExcuteScanConversionKernel(
+    const dim3* grid,
+    const dim3* block,
+    const INPUT_FORMAT* const input,
+    const dataInfo inputInfo,
+    OUTPUT_FORMAT* const output,
+    const dataInfo outputInfo,
+    const ImageParam param
+)
+{
+    ScanConversionKernel << < *grid, *block >> > (input, inputInfo, output, outputInfo, param);
+}
+
+void ExcuteScanConversionKernelTexture(
+    const dim3* grid,
+    const dim3* block,
+    const cudaTextureObject_t const input,
+    const dataInfo inputInfo,
+    OUTPUT_FORMAT* const output,
+    const dataInfo outputInfo,
+    const ImageParam param
+) {
+    ScanConversionKernelTexture << < *grid, *block >> > (input, inputInfo, output, outputInfo, param);
 }

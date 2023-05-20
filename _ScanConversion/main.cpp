@@ -2,23 +2,32 @@
 #include "stdafx.h"
 #include "interface.h"
 
-using std::string, std::vector, std::stringstream, std::ifstream, std::ofstream, std::ios;
+using std::string, std::vector, std::stringstream, std::ifstream, std::ofstream, std::ios, std::function, std::cout;
 
 string GetStringFormat(const dataInfo* const info);
 bool ReadBinFile(string filePath, INPUT_FORMAT** _data, int* datalen);
-bool WriteBinFile(string filePath, const OUTPUT_FORMAT* data, int data_len);
+void TestPerformanceFunction(
+    const INPUT_FORMAT* const input,
+    const dataInfo* const inputInfo,
+    OUTPUT_FORMAT* const output,
+    const dataInfo* const outputInfo,
+    const ImageParam* const param,
+    const int count,
+    CALLBACK_TYPE callback,
+    string title = ""
+);
 
 int main()
 {
-    int width = 500; // the number of decimated sample (2000 / 4)
-    int height = 128; // the number of element
+    int width = 2000; // the number of decimated sample (2000 / 4)
+    int height = 2000; // the number of element
     dataInfo inputInfo = { width, height, sizeof(INPUT_FORMAT)};
     vector<INPUT_FORMAT> vInput((size_t)width * height, 0);
 
     // generate example data
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
-            vInput[i + (size_t)j * width] = (INPUT_FORMAT)floor(((1 << (sizeof(INPUT_FORMAT) * 8)) - 1)*((float)j)/(float)height);
+            vInput[i + (size_t)j * width] = (INPUT_FORMAT)floor(((1 << 8) - 1)*((float)j)/(float)height);
             //gray gradation to height direction 
         }
     }
@@ -35,7 +44,7 @@ int main()
     float c = 1540.f;
     float axialStep = c / 2.f / fsHz;
     float lateralStep = pitchM;
-    float gridStep = fminf(axialStep * (float)width / (float)outWidth,
+    float gridStep = fmaxf(axialStep * (float)width / (float)outWidth,
                             pitchM * (float)height / (float)outHeight);
 
     ImageParam param = {
@@ -49,9 +58,16 @@ int main()
         gridStep        //float fGridStepM;
     };
 
-    double ProcessTimeMicroSecond = ScanConversion(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param);
+    CALLBACK_TYPE scanConvFunc = ScanConversion;
+    CALLBACK_TYPE scanConvTextFunc = ScanConversionTexture;
 
-    printf("Process Time: %lf micro-second\n", ProcessTimeMicroSecond);
+    int testCount = 1000;
+
+    //double ProcessTimeMicroSecond = ScanConversionTexture(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param);
+    TestPerformanceFunction(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param, testCount, ScanConversion,
+        "ScanConversion");
+    TestPerformanceFunction(&vInput[0], &inputInfo, &vOutput[0], &outputInfo, &param, testCount, ScanConversionTexture,
+        "ScanConvertionTexture");
 
     // cudaDeviceReset must be called before exiting in order for profiling and
     // tracing tools such as Nsight and Visual Profiler to show complete traces.
@@ -96,14 +112,25 @@ bool ReadBinFile(string filePath, INPUT_FORMAT** _data, int* datalen)
     return true;
 }
 
-bool WriteBinFile(string filePath, const OUTPUT_FORMAT* const data, int data_len)
-{
-    ofstream fout;
-    fout.open(filePath, ios::out | ios::binary);
+void TestPerformanceFunction(
+    const INPUT_FORMAT* const input,
+    const dataInfo* const inputInfo,
+    OUTPUT_FORMAT* const output,
+    const dataInfo* const outputInfo,
+    const ImageParam* const param,
+    const int count,
+    CALLBACK_TYPE callback,
+    const string title
+    ) {
 
-    if (fout.is_open()) {
-        fout.write((char*)data, data_len);
-        fout.close();
+    TIME_FORMAT sum = 0;
+    for (size_t i = 0; i < count; i++)
+    {
+        sum += ScanConversionTexture(input, inputInfo, output, outputInfo, param);
     }
-    return true;
+    TIME_FORMAT aveSum = sum / (TIME_FORMAT)count;
+
+    stringstream stm;
+    stm << title << ": " << aveSum << " ms\n";
+    cout << stm.str();
 }

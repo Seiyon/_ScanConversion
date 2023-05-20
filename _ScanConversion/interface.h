@@ -1,5 +1,6 @@
 #pragma once
 
+
 TIME_FORMAT ScanConversion(
 	const INPUT_FORMAT* const input,
 	const dataInfo* const inputInfo,
@@ -14,6 +15,13 @@ TIME_FORMAT ScanConversionTexture(
 	const dataInfo* const outputInfo,
 	const ImageParam* const param);
 
-void* AllocCudaMem(const dataInfo* const inputInfo);
 
 int GetTotalSize(const dataInfo* const info);
+
+void DeleteTextureObject(cudaTextureObject_t* obj);
+
+cudaTextureObject_t* CreateTextureObject(const cudaResourceDesc* const textRes, const cudaTextureDesc* const textDesc);
+
+cudaArray* AllocCudaArray(const dataInfo* const info, const cudaChannelFormatDesc* const channelDesc);
+
+void* AllocCudaMem(const dataInfo* const inputInfo);

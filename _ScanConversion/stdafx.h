@@ -13,10 +13,17 @@
 #include <sstream>
 #include <chrono>
 #include <fstream>
+#include <functional>
 
-#define INPUT_FORMAT unsigned char
+#define INPUT_FORMAT float
 #define OUTPUT_FORMAT unsigned char
-#define TIME_FORMAT double
+#define TIME_FORMAT float
+#define CALLBACK_TYPE std::function<TIME_FORMAT(\
+		const INPUT_FORMAT* const,\
+		const dataInfo* const,\
+		OUTPUT_FORMAT* const,\
+		const dataInfo* const,\
+		const ImageParam* const)>
 
 struct ImageParam {
 	float fSamplingFreqHz;
@@ -51,3 +58,17 @@ void CheckBool(T result, char const* const func, const char* const file, int con
 }
 
 #define IF_FALSE_ERROR(val) CheckBool((val), #val, __FILE__, __LINE__)
+
+
+template<typename T>
+bool WriteBinFile(std::string filePath, const T* const data, int data_len)
+{
+	std::ofstream fout;
+	fout.open(filePath, std::ios::out | std::ios::binary);
+
+	if (fout.is_open()) {
+		fout.write((char*)data, data_len);
+		fout.close();
+	}
+	return true;
+}
